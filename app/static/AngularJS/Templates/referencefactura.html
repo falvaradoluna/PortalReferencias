@@ -1,0 +1,677 @@
+<div ng-init="init()">
+    <div id="page-title">
+        <h4 style="margin-left:112px">{{nombreEmpresa}} <span ng-show="idEmpresa != null" class="ng-binding ng-hide">/ {{nombreSucursal}}  </span><span ng-show="idDepartamento != null" class="ng-binding ng-hide">/ {{nombreDepartamento}} </span> </h4>
+    </div>
+    <!-- container INI -->
+    <div class="container" style="margin-top: 30px;">
+        <!-- busqueda INI -->
+        <div>
+            <div class="dropdown lineal">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Búsqueda por...
+                    <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li style="cursor:pointer"><a ng-click="setSearchType(1)">ID Cliente</a></li>
+                    <li style="cursor:pointer"><a ng-click="setSearchType(2)">Nombre</a></li>
+                    <li style="cursor:pointer"><a ng-click="setSearchType(3)">ID Documento</a></li>
+                </ul>
+            </div>
+            <div class="lineal">
+                <input type="text" class="input-modify" id="txtSearch" ng-model="txtSearchClient" placeholder="{{searchType}}">
+            </div>
+            <div class="lineal">
+                <button type="button" class="btn btn-default" ng-click="searchClients()"><span class="glyphicon glyphicon-search"> </span> </button>
+            </div>
+        </div>
+        <!-- busqueda END -->
+        <!--  Form clientes Ini -->
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Clientes <small>Datos de cliente</small></h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class=""></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row" ng-show="showPanel">
+                    <div class="col-sm-12">
+                        <table id="tblClient" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID Cliente</th>
+                                    <th>Nombre</th>
+                                    <th>Rfc</th>
+                                    <th>Colonia</th>
+                                    <th>Delegación</th>
+                                    <th>Codigo Postal</th>
+                                    <th ng-show="mostrar"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="lCliente in lstClient">
+                                    <td>{{lCliente.idCliente}}</td>
+                                    <td>{{lCliente.nombre}}</td>
+                                    <td>{{lCliente.rfc}}</td>
+                                    <td>{{lCliente.colonia}}</td>
+                                    <td>{{lCliente.delegacion}}</td>
+                                    <td>{{lCliente.codigoPostal}}</td>
+                                    <td ng-show="mostrar">
+                                        <button class="btn btn-default" ng-click="searchDocs(lCliente);"><span class="glyphicon glyphicon-ok"> </span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row" ng-show="showPanel1">
+                    <h4> &nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-list"></span> Datos Cliente</h4>
+                    <div class="col-xs-6 col-sm-4">
+                        ID Cliente:
+                        <label>{{lstClient[0].idCliente}}</label>
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        Nombre:
+                        <label>{{lstClient[0].nombre}}</label>
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        Rfc:
+                        <label>{{lstClient[0].rfc}}</label>
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        Colonia:
+                        <label>{{lstClient[0].colonia}}</label>
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        Delegación:
+                        <label>{{lstClient[0].delegacion}}</label>
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        Codigo Postal:
+                        <label>{{lstClient[0].codigoPostal}}</label>
+                    </div>
+                </div>
+            </div>
+            <!--  Form clientes Fin -->
+            <!--  Form grids INI -->
+            <!--    FILTRO PARA CLIENTES-->
+            <div class="ibox float-e-margins" ng-show="Clientefiltro">
+                <div class="ibox-title">
+                    <h5>Búsqueda Clientes <small> Factura / Pedido / Cotizaciones</small></h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class=""></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <!-- filtros INI -->
+                    <div class="row">
+                        <br>
+                        <div class="col-sm-12">
+                            <div class="dropdown lineal">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-filter"> </span> Filtro por Empresa
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li style="cursor:pointer" ng-repeat="empresa in empresas" ng-click="seletionCompany(empresa.emp_idempresa,empresa.emp_nombre)"><a> {{empresa.emp_nombre}} </a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown lineal" ng-show="sucursal">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-filter"> </span> Filtro por Sucursal
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li style="cursor:pointer" ng-repeat="sucursal in sucursales" ng-click="seletionBranchoOffice(sucursal.suc_idsucursal,sucursal.suc_nombre)"><a> {{sucursal.suc_nombre}} </a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown lineal" ng-show="departament">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-filter"> </span> Filtro por Departamento
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li style="cursor:pointer" ng-repeat="departamento in departamentos" ng-click="selectDepartment(departamento.dep_iddepartamento,departamento.dep_nombre)"><a> {{departamento.dep_nombre}} </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- filtros FIN -->
+                    <!-- div tabs INI -->
+                    <div class="row">
+                        <br>
+                        <div class="col-sm-12">
+                            <!-- tabs inicio-->
+                            <ul class="nav nav-pills newcolor">
+                                <li ng-class="panels[0].className" ng-click="setActiveClass(panels[0])"><a href="#">{{panels[0].name}}</a></li>
+                                <li ng-class="panels[1].className" ng-click="setActiveClass(panels[1])"><a href="#">{{panels[1].name}}</a></li>
+                                <li ng-class="panels[2].className" ng-click="setActiveClass(panels[2])"><a href="#">{{panels[2].name}}</a></li>
+                            </ul>
+                            <!-- tabs Fin-->
+                            <!-- tabContent1 Ini-->
+                            <div ng-show="panels[0].active">
+                                <br>
+                                <!-- tabla lotes no Aplicado -->
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tblFactura" class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id Documento</th>
+                                                    <th>Nombre Sucursal</th>
+                                                    <th>Departamento</th>
+                                                    <th>Id Cliente</th>
+                                                    <th>Nombre Cliente</th>
+                                                    <th>Importe</th>
+                                                    <th>Saldo</th>
+                                                    <th>Fecha</th>
+                                                    <th>Referencia</th>
+                                                    <th ng-show="individual">Generar Referencia</th>
+                                                    <th ng-show="lote"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="fact in lstFactura">
+                                                    <td>{{fact.folio}}</td>
+                                                    <td>{{fact.nombreSucursal}}</td>
+                                                    <td>{{fact.origenMovimiento}}</td>
+                                                    <td>{{fact.idCliente}}</td>
+                                                    <td>{{fact.nombreCliente}}</td>
+                                                    <td>{{fact.importe | currency:"$":2}}</td>
+                                                    <td>{{fact.saldo | currency:"$":2}}</td>
+                                                    <td>{{fact.fecha}}</td>
+                                                    <td>{{fact.referencia}}</td>
+                                                    <td ng-show="individual">
+                                                        <button class="btn btn-default btn-icon btn-circle" data-toggle="modal" data-target="#myModal" ng-click="generateReference(fact)"><span class="glyphicon glyphicon-share"> </span></button>
+                                                    </td>
+                                                    <td ng-show="lote">
+                                                        <input type="checkbox" ng-attr-id="{{fact.folio}}" ng-model="ck.id" ng-true-value="'{{fact.folio}}'" class=" css-checkbox" ng-click="valorCheckBoxTabla(ck.id,fact)">
+                                                        <label for="{{fact.folio}}" class="css-label"></label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- tabla lotes no Aplicado  FIN-->
+                            </div>
+                            <!-- tabContent1 Fin-->
+                            <!-- tabContent1 Ini-->
+                            <div ng-show="panels[1].active">
+                                <br>
+                                <!-- tabla lotes no Aplicado -->
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tblPedido" class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id Documento</th>
+                                                    <th>Nombre Sucursal</th>
+                                                    <th>Nombre Departamento</th>
+                                                    <th>Importe</th>
+                                                    <th>Id Cliente</th>
+                                                    <th>Nombre Cliente</th>
+                                                    <th>Fecha</th>
+                                                    <th>Referencia</th>
+                                                    <th ng-show="individual">Generar Referencia</th>
+                                                    <th ng-show="lote"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="pedido in lstPedido">
+                                                    <td>{{pedido.idDocumento}}</td>
+                                                    <td>{{pedido.nombreSucursal}}</td>
+                                                    <td>{{pedido.nombreDepartamento}}</td>
+                                                    <td>{{pedido.saldo| currency:"$":2}}</td>
+                                                    <td>{{pedido.idCliente}}</td>
+                                                    <td>{{pedido.nombreCliente}}</td>
+                                                    <td>{{pedido.fecha}}</td>
+                                                    <td>{{pedido.referencia}}</td>
+                                                    <td ng-show="individual">
+                                                        <button class="btn btn-default btn-icon btn-circle" data-toggle="modal" data-target="#myModal" ng-click="generateReference(pedido)"><span class="glyphicon glyphicon-share"> </span></button>
+                                                    </td>
+                                                    <td ng-show="lote">
+                                                        <input type="checkbox" ng-attr-id="{{pedido.idDocumento}}" ng-model="ck.id" ng-true-value="'{{pedido.idDocumento}}'" class=" css-checkbox" ng-click="valorCheckBoxTabla(ck.id,pedido)">
+                                                        <label for="{{pedido.idDocumento}}" class="css-label"></label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- tabla lotes no Aplicado  FIN-->
+                            </div>
+                            <!-- tabContent1 Fin-->
+                            <!-- tabContent1 Ini-->
+                            <div ng-show="panels[2].active">
+                                <br>
+                                <!-- tabla lotes no Aplicado -->
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tblReference" class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id Documento</th>
+                                                    <th>Nombre Sucursal</th>
+                                                    <th>Nombre Departamento</th>
+                                                    <th>Importe</th>
+                                                    <th>Id Cliente</th>
+                                                    <th>Nombre Cliente</th>
+                                                    <th>Fecha</th>
+                                                    <th>Referencia</th>
+                                                    <th ng-show="individual">Generar Referencia</th>
+                                                    <th ng-show="lote"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="cotizacion in lstCotizacion">
+                                                    <td>{{cotizacion.idDocumento}}</td>
+                                                    <td>{{cotizacion.nombreSucursal}}</td>
+                                                    <td>{{cotizacion.nombreDepartamento}}</td>
+                                                    <td>{{cotizacion.saldo | currency:"$":2}}</td>
+                                                    <td>{{cotizacion.idCliente}}</td>
+                                                    <td>{{cotizacion.nombreCliente}}</td>
+                                                    <td>{{cotizacion.fecha}}</td>
+                                                    <td>{{cotizacion.referencia}}</td>
+                                                    <td ng-show="individual">
+                                                        <button class="btn btn-default btn-icon btn-circle" data-toggle="modal" data-target="#myModal" ng-click="generateReference(cotizacion)"><span class="glyphicon glyphicon-share"> </span></button>
+                                                    </td>
+                                                    <td ng-show="lote">
+                                                        <input type="checkbox" ng-attr-id="{{cotizacion.idDocumento}}" ng-model="ck.id" ng-true-value="'{{cotizacion.idDocumento}}'" class=" css-checkbox" ng-click="valorCheckBoxTabla(ck.id,cotizacion)">
+                                                        <label for="{{cotizacion.idDocumento}}" class="css-label"></label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- tabla lotes no Aplicado  FIN-->
+                            </div>
+                            <!-- tabContent1 Fin-->
+                            <div class="row" ng-show="individualEmpresa"> 
+                                <div class="col-sm-10"></div>
+                                <div class="col-sm-2">
+                                    <button class="btn btn-default" type="button" data-toggle="dropdown" ng-click="referenceLote()">Referencia Lote</button> 
+                                </div>
+                            </div>
+                            <div class="row" ng-show="lote">
+                            <div class="col-sm-2">
+                                <button class="btn btn-warning" type="button" data-toggle="dropdown" ng-click="cancelReferenceLote()">Cancelar Lote</button>
+                            </div>
+                                <div class="col-sm-8"></div>
+                                <div class="col-sm-2">
+                                    <button class="btn btn-info" data-toggle="modal" data-target="#modalLotes" ng-click="detalleLotes()">Gerenerar Lote</button> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- div tabs end -->
+                </div>
+            </div>
+            <!--  TERMINA FILTRO PARA CLIENTES -->
+            <!--  INICIA FILTRO PARA DOCUMENTOS -->
+            <div class="ibox float-e-margins" ng-show="DocumentoFiltro">
+                <div class="ibox-title">
+                    <h5>Búsqueda Documento<small> Factura / Pedido / Cotizaciones</small></h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class=""></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <!-- filtros INI -->
+                    <div class="row">
+                        <br>
+                        <div class="col-sm-12">
+                            <div class="dropdown lineal">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-filter"> </span> Filtro por Empresa
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li style="cursor:pointer" ng-repeat="empresa in empresas" ng-click="seletionCompanyDoc(empresa.emp_idempresa,empresa.emp_nombre)"><a> {{empresa.emp_nombre}} </a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown lineal" ng-show="sinsuc">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-filter"> </span> Filtro por Sucursal
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li style="cursor:pointer" ng-repeat="sucursal in sucursales" ng-click="seletionBranchoOffice(sucursal.suc_idsucursal,sucursal.suc_nombre)"><a> {{sucursal.suc_nombre}} </a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown lineal" ng-show="sinsuc">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="glyphicon glyphicon-filter"> </span> Filtro por Departamento
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li style="cursor:pointer" ng-repeat="departamento in departamentos" ng-click="selectDepartment(departamento.dep_iddepartamento,departamento.dep_nombre)"><a> {{departamento.dep_nombre}} </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- filtros FIN -->
+                    <!-- div tabs INI -->
+                    <div class="row">
+                        <br>
+                        <div class="col-sm-12">
+                            <!-- tabs inicio-->
+                            <ul class="nav nav-pills newcolor">
+                                <li ng-class="panels[0].className" ng-click="setActiveClass(panels[0])"><a href="#">{{panels[0].name}}</a></li>
+                                <li ng-class="panels[1].className" ng-click="setActiveClass(panels[1])"><a href="#">{{panels[1].name}}</a></li>
+                                <li ng-class="panels[2].className" ng-click="setActiveClass(panels[2])"><a href="#">{{panels[2].name}}</a></li>
+                            </ul>
+                            <!-- tabs Fin-->
+                            <!-- tabContent1 Ini-->
+                            <div ng-show="panels[0].active">
+                                <br>
+                                <!-- tabla lotes no Aplicado -->
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tblFacturaDoc" class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id Documento</th>
+                                                    <th>Nombre Sucursal</th>
+                                                    <th>Departamento</th>
+                                                    <th>Id Cliente</th>
+                                                    <th>Nombre Cliente</th>
+                                                    <th>Importe</th>
+                                                    <th>Saldo</th>
+                                                    <th>Fecha</th>
+                                                    <th>Referencia</th>
+                                                    <th>Generar Referencia</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="fact in lstFacturaDoc">
+                                                    <td>{{fact.folio}}</td>
+                                                    <td>{{fact.nombreSucursal}}</td>
+                                                    <td>{{fact.origenMovimiento}}</td>
+                                                    <td>{{fact.idCliente}}</td>
+                                                    <td>{{fact.nombreCliente}}</td>
+                                                    <td>{{fact.importe | currency:"$":2}}</td>
+                                                    <td>{{fact.saldo | currency:"$":2}}</td>
+                                                    <td>{{fact.fecha}}</td>
+                                                    <td>{{fact.referencia}}</td>
+                                                    <td>
+                                                        <button class="btn btn-default btn-icon btn-circle" data-toggle="modal" data-target="#myModal" ng-click="generateReference(fact)"><span class="glyphicon glyphicon-share"> </span></button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- tabla lotes no Aplicado  FIN-->
+                            </div>
+                            <!-- tabContent1 Fin-->
+                            <!-- tabContent1 Ini-->
+                            <div ng-show="panels[1].active">
+                                <br>
+                                <!-- tabla lotes no Aplicado -->
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tblPedidoDoc" class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id Documento</th>
+                                                    <th>Nombre Sucursal</th>
+                                                    <th>Nombre Departamento</th>
+                                                    <th>Importe</th>
+                                                    <th>Id Cliente</th>
+                                                    <th>Nombre Cliente</th>
+                                                    <th>Fecha</th>
+                                                    <th>Referencia</th>
+                                                    <th>Generar Referencia</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="pedido in lstPedidoDoc">
+                                                    <td>{{pedido.idDocumento}}</td>
+                                                    <td>{{pedido.nombreSucursal}}</td>
+                                                    <td>{{pedido.nombreDepartamento}}</td>
+                                                    <td>{{pedido.saldo| currency:"$":2}}</td>
+                                                    <td>{{pedido.idCliente}}</td>
+                                                    <td>{{pedido.nombreCliente}}</td>
+                                                    <td>{{pedido.fecha}}</td>
+                                                    <td>{{pedido.referencia}}</td>
+                                                    <td>
+                                                        <button class="btn btn-default btn-icon btn-circle" data-toggle="modal" data-target="#myModal" ng-click="generateReference(pedido)"><span class="glyphicon glyphicon-share"> </span></button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- tabla lotes no Aplicado  FIN-->
+                            </div>
+                            <!-- tabContent1 Fin-->
+                            <!-- tabContent1 Ini-->
+                            <div ng-show="panels[2].active">
+                                <br>
+                                <!-- tabla lotes no Aplicado -->
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="tblReferenceDoc" class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id Documento</th>
+                                                    <th>Nombre Sucursal</th>
+                                                    <th>Nombre Departamento</th>
+                                                    <th>Importe</th>
+                                                    <th>Id Cliente</th>
+                                                    <th>Nombre Cliente</th>
+                                                    <th>Fecha</th>
+                                                    <th>Referencia</th>
+                                                    <th>Generar Referencia</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="cotizacion in lstCotizaciondOC">
+                                                    <td>{{cotizacion.idDocumento}}</td>
+                                                    <td>{{cotizacion.nombreSucursal}}</td>
+                                                    <td>{{cotizacion.nombreDepartamento}}</td>
+                                                    <td>{{cotizacion.saldo | currency:"$":2}}</td>
+                                                    <td>{{cotizacion.idCliente}}</td>
+                                                    <td>{{cotizacion.nombreCliente}}</td>
+                                                    <td>{{cotizacion.fecha}}</td>
+                                                    <td>{{cotizacion.referencia}}</td>
+                                                    <td>
+                                                        <button class="btn btn-default btn-icon btn-circle" data-toggle="modal" data-target="#myModal" ng-click="generateReference(cotizacion)"><span class="glyphicon glyphicon-share"> </span></button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- tabla lotes no Aplicado  FIN-->
+                            </div>
+                            <!-- tabContent1 Fin-->
+                        </div>
+                    </div>
+                    <!-- div tabs end -->
+                </div>
+            </div>
+        </div>
+        <!-- container end -->
+    </div>
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" ng-show="cotizacionDetalle.tipoDocumento == 1">Factura:    {{cotizacionDetalle.serie}}{{cotizacionDetalle.idDocumento}}</h4>
+                    <h4 class="modal-title" ng-show="cotizacionDetalle.tipoDocumento == 2">Cotización: {{cotizacionDetalle.idDocumento}}</h4>
+                    <h4 class="modal-title" ng-show="cotizacionDetalle.tipoDocumento == 3">Pedido: {{cotizacionDetalle.idDocumento}}
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>
+                                <b>Empresa</b>
+                            </p>
+                            <p>
+                                {{cotizacionDetalle.nombreEmpresa}}
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>
+                                <b>Cliente</b>
+                            </p>
+                            <p>
+                                {{cotizacionDetalle.nombreCliente}}
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>
+                                <b>Departamento</b>
+                            </p>
+                            <p>
+                                {{cotizacionDetalle.nombreDepartamento}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>
+                                <b>Sucursal</b>
+                            </p>
+                            <p>
+                                {{cotizacionDetalle.nombreSucursal}}
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>
+                                <b>Saldo</b>
+                            </p>
+                            <p>
+                                {{cotizacionDetalle.saldo | currency:"$":2}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="cotizacionDetalle.referencia != null">
+                        <div class="col-sm-12">
+                            <p>
+                                <b>Referencia</b>
+                            </p>
+                            <p style="font-size:18px; font-family:Helvetica;">
+                                {{cotizacionDetalle.referencia}}
+                            </p>
+                        </div>
+                    </div>
+                    <div id="pnlProgress" class="progress hide-div">
+                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"> Generando PDF
+                            <span class="sr-only">100% Complete</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cerrar</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button class="btn btn-info " ng-click="generarPdf()"><span class="glyphicon glyphicon-file"> </span>Generar PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal 1 FIN-->
+    <!-- Modal 2-->
+    <div id="loadModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="sk-folding-cube">
+                <div class="sk-cube1 sk-cube"></div>
+                <div class="sk-cube2 sk-cube"></div>
+                <div class="sk-cube4 sk-cube"></div>
+                <div class="sk-cube3 sk-cube"></div>
+            </div>
+            <div style="color:white;margin-left: 40%; margin-top:20px">Cargando...</div>
+        </div>
+    </div>
+
+       <!-- Modal 3 lotes -->
+    <div id="modalLotes" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" ng-show="arrayDataLot[0].idTipoDocumento == 1 ">Lote de: Facturas</h4>
+                    <h4 class="modal-title" ng-show="arrayDataLot[0].idTipoDocumento == 2">Lote de: Cotizaciones</h4>
+                    <h4 class="modal-title" ng-show="arrayDataLot[0].idTipoDocumento == 3">Lote de: Pedidos</h4>
+                </div>
+                <div class="modal-body">
+                <div class="row">
+                        <div class="col-sm-6">
+                            <p>
+                                <b>Empresa</b>
+                            </p>
+                            <p>
+                                {{arrayDataLot[0].nombreEmpresa}}
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>
+                                <b>Cliente</b>
+                            </p>
+                            <p>
+                                {{arrayDataLot[0].nombreCliente}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                            <div class="col-sm-12">
+                                        <table id="tblDetalleLotes" class="table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id Documento</th>
+                                                    <th>Nombre Sucursal</th>
+                                                    <th>Nombre Departamento</th>
+                                                    <th>Importe</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="arrayDataLot in arrayDataLot">
+                                                    <td>{{arrayDataLot.folio}}</td>
+                                                    <td>{{arrayDataLot.nombreSucursal}}</td>
+                                                    <td>{{arrayDataLot.nombreDepartamento}}</td>
+                                                    <td>{{arrayDataLot.saldo| currency:"$":2}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                        </div>
+                        <div class="col-sm-1" style="text-align:right">
+                            <p>
+                                <b>Total</b>
+                            </p>
+                        </div>
+                        <div class="col-sm-3" style="text-align:center">
+                                &nbsp;&nbsp;{{totalPago | currency:"$":2}}
+                        </div>
+                    </div>
+                    
+                    <div id="pnlProgresso" class="progress hide-div">
+                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"> Generando PDF
+                            <span class="sr-only">100% Complete</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-default pull-left" data-dismiss="modal" ng-click="cerrarModalLotes()">Cerrar</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button class="btn btn-info " ng-click="generarPdfLotes()"><span class="glyphicon glyphicon-file"> </span>Generar PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
